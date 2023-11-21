@@ -271,37 +271,35 @@ TarHeader extends Object
 	 * @param length The number of header bytes to parse.
 	 * @return The long value of the octal string.
 	 */
-	public static long
-	parseOctal( byte[] header, int offset, int length )
-		throws InvalidHeaderException
-		{
-		long result = 0;
-		boolean stillPadding = true;
+	public static long parseOctal(byte[] header, int offset, int length) throws InvalidHeaderException {
+	    long result = 0;
+	    boolean stillPadding = true;
 
-		int end = offset + length;
-		for ( int i = offset ; i < end ; ++i )
-			{
-			if ( header[i] == 0 )
-				break;
+	    for (int i = offset; i < offset + length; i++) {
+	        byte currentByte = header[i];
 
-			if ( header[i] == (byte) ' ' || header[i] == '0' )
-				{
-				if ( stillPadding )
-					continue;
+	        if (currentByte == 0) {
+	            break; // End of header segment
+	        }
 
-				if ( header[i] == (byte) ' ' )
-					break;
-				}
-			
-			stillPadding = false;
+	        if (currentByte == (byte) ' ' || currentByte == '0') {
+	            if (stillPadding) {
+	                continue; // Skip padding
+	            }
 
-			result =
-				(result << 3)
-					+ (header[i] - '0');
-			}
+	            if (currentByte == (byte) ' ') {
+	                break; // Space encountered, end of number
+	            }
+	        }
 
-		return result;
-		}
+	        stillPadding = false; // First non-padding character found
+
+	        // Compute the octal value
+	        result = (result << 3) + (currentByte - '0');
+	    }
+
+	    return result;
+	}
 
 	/**
 	 * Parse an entry name from a header buffer.
