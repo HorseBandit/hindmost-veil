@@ -95,6 +95,10 @@ extends		Object
 		this.initialize();
 		this.nameTarHeader( this.header, name );
 		}
+	
+	// Constants for directory and file modes
+    public static final int DIRECTORY_MODE = 040755;
+    public static final int FILE_MODE = 0100644;
 
 	/**
 	 * Construct an entry for a file. File is set to file, and the
@@ -690,40 +694,37 @@ extends		Object
 		}
 
 	/**
-	 * Fill in a TarHeader given only the entry's name.
-	 *
-	 * @param hdr The TarHeader to fill in.
-	 * @param name The tar entry name.
-	 */
-	public void
-	nameTarHeader( TarHeader hdr, String name )
-		{
-		boolean isDir = name.endsWith( "/" );
+     * Fill in a TarHeader given only the entry's name.
+     * This method sets the TarHeader properties based on whether the name represents a directory or a file.
+     * 
+     * @param hdr  The TarHeader to fill in.
+     * @param name The tar entry name.
+     */
+    public void nameTarHeader(TarHeader hdr, String name) {
+        boolean isDir = name.endsWith("/");
 
-		hdr.checkSum = 0;
-		hdr.devMajor = 0;
-		hdr.devMinor = 0;
+        // Set the header properties
+        hdr.name = new StringBuffer(name);
+        hdr.mode = isDir ? DIRECTORY_MODE : FILE_MODE;
+        hdr.userId = 0;
+        hdr.groupId = 0;
+        hdr.size = 0;
+        
+        // Time is set to the current time, divided by 1000 to convert from milliseconds to seconds
+        hdr.modTime = (new java.util.Date()).getTime() / 1000;
+        
+        hdr.linkFlag = isDir ? TarHeader.LF_DIR : TarHeader.LF_NORMAL;
+        
+        // Initializing linkName, userName, and groupName with empty StringBuffer
+        hdr.linkName = new StringBuffer();
+        hdr.userName = new StringBuffer();
+        hdr.groupName = new StringBuffer();
+        
+        // Checksum and device info are set to 0 as they are not used for this entry type
+        hdr.checkSum = 0;
+        hdr.devMajor = 0;
+        hdr.devMinor = 0;
+    }
 
-		hdr.name = new StringBuffer( name );
-		hdr.mode = isDir ? 040755 : 0100644;
-		hdr.userId = 0;
-		hdr.groupId = 0;
-		hdr.size = 0;
-		hdr.checkSum = 0;
-
-		hdr.modTime =
-			(new java.util.Date()).getTime() / 1000;
-
-		hdr.linkFlag =
-			isDir ? TarHeader.LF_DIR : TarHeader.LF_NORMAL;
-
-		hdr.linkName = new StringBuffer( "" );
-		hdr.userName = new StringBuffer( "" );
-		hdr.groupName = new StringBuffer( "" );
-
-		hdr.devMajor = 0;
-		hdr.devMinor = 0;
-		}
-
-	}
+}
 

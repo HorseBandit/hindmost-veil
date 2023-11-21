@@ -174,25 +174,38 @@ TarHeader extends Object
 	public int				devMinor;
 
 
-	public
-	TarHeader()
-		{
-		this.magic = new StringBuffer( TarHeader.TMAGIC );
+	 /**
+     * Constructs a TarHeader object initializing it with default values and
+     * setting the magic string to TMAGIC. The userName is set from the system's user name
+     * property and is truncated to 31 characters if necessary.
+     */
+    public TarHeader() {
+        this.magic = new StringBuffer(TarHeader.TMAGIC);
 
-		this.name = new StringBuffer();
-		this.linkName = new StringBuffer();
+        this.name = new StringBuffer();
+        this.linkName = new StringBuffer();
 
-		String user =
-			System.getProperty( "user.name", "" );
+        String user = truncateUserName(System.getProperty("user.name", ""));
 
-		if ( user.length() > 31 )
-			user = user.substring( 0, 31 );
-
-		this.userId = 0;
-		this.groupId = 0;
-		this.userName = new StringBuffer( user );
-		this.groupName = new StringBuffer( "" );
-		}
+        this.userId = 0;
+        this.groupId = 0;
+        this.userName = new StringBuffer(user);
+        this.groupName = new StringBuffer();
+    }
+    
+    /**
+     * Truncates the user name to a maximum length of 31 characters.
+     *
+     * @param userName The user name to be truncated.
+     * @return A truncated user name if necessary, or the original user name if not.
+     */
+    private String truncateUserName(String userName) {
+        final int maxNameLength = 31;
+        if (userName.length() > maxNameLength) {
+            return userName.substring(0, maxNameLength);
+        }
+        return userName;
+    }
 
 	/**
 	 * TarHeaders can be cloned.
