@@ -334,23 +334,20 @@ TarHeader extends Object
 	 * @param length The number of header bytes to parse.
 	 * @return The number of bytes in a header's entry name.
 	 */
-	public static int
-	getNameBytes( StringBuffer name, byte[] buf, int offset, int length )
-		{
-		int i;
+	public static int getNameBytes(StringBuffer name, byte[] buf, int offset, int length) {
+	    int nameLength = name.length();
+	    int i;
 
-		for ( i = 0 ; i < length && i < name.length() ; ++i )
-			{
-			buf[ offset + i ] = (byte) name.charAt( i );
-			}
+	    for (i = 0; i < length; ++i) {
+	        if (i < nameLength) {
+	            buf[offset + i] = (byte) name.charAt(i);
+	        } else {
+	            buf[offset + i] = 0; // Pad with zeros
+	        }
+	    }
 
-		for ( ; i < length ; ++i )
-			{
-			buf[ offset + i ] = 0;
-			}
-
-		return offset + length;
-		}
+	    return offset + length;
+	}
 
 	/**
 	 * Parse an octal integer from a header buffer.
