@@ -357,40 +357,30 @@ TarHeader extends Object
 	 * @param length The number of header bytes to parse.
 	 * @return The integer value of the octal bytes.
 	 */
-	public static int
-	getOctalBytes( long value, byte[] buf, int offset, int length )
-		{
-		byte[] result = new byte[ length ];
+	public static int getOctalBytes(long value, byte[] buf, int offset, int length) {
+	    int idx = offset + length - 1;
 
-		int idx = length - 1;
+	    // Setting up the null terminator and the trailing space.
+	    buf[idx--] = 0;
+	    buf[idx--] = (byte) ' ';
 
-		buf[ offset + idx ] = 0;
-		--idx;
-		buf[ offset + idx ] = (byte) ' ';
-		--idx;
+	    // Handle the special case where value is zero.
+	    if (value == 0) {
+	        buf[idx--] = (byte) '0';
+	    } else {
+	        // Convert value into octal until value is depleted or buffer space runs out.
+	        for (long val = value; idx >= offset && val > 0; --idx, val >>= 3) {
+	            buf[idx] = (byte) ('0' + (val & 7));
+	        }
+	    }
 
-		if ( value == 0 )
-			{
-			buf[ offset + idx ] = (byte) '0';
-			--idx;
-			}
-		else
-			{
-			for ( long val = value ; idx >= 0 && val > 0 ; --idx )
-				{
-				buf[ offset + idx ] = (byte)
-					( (byte) '0' + (byte) (val & 7) );
-				val = val >> 3;
-				}
-			}
+	    // Fill remaining buffer space with spaces.
+	    while (idx >= offset) {
+	        buf[idx--] = (byte) ' ';
+	    }
 
-		for ( ; idx >= 0 ; --idx )
-			{
-			buf[ offset + idx ] = (byte) ' ';
-			}
-
-		return offset + length;
-		}
+	    return offset + length;
+	}
 
 	/**
 	 * Parse an octal long integer from a header buffer.
